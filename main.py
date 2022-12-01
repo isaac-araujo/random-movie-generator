@@ -14,7 +14,7 @@ def get_imdb_link(movie_title: str) -> str:
     Returns:
         str: Imdb Url of the movie
     """
-    url = f'https://www.imdb.com/find?q={movie_title.replace(" ", "+")}'
+    url = f"https://www.imdb.com/find?q={movie_title.replace(' ', '+')}"
     try:
         for _ in range(2):
             response = requests.get(url, headers={"User-Agent": UserAgent().firefox})
