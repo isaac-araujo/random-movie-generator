@@ -33,7 +33,7 @@ def get_movie_images(movies: bs4.element.Tag) -> list:
     """_summary_
 
     Args:
-        movies (bs4.element.Tag): BS4 element
+        movies (bs4.element.Tag): BS4 element tag
 
     Returns:
         list: List of the movies images
