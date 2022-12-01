@@ -1,62 +1,84 @@
 import requests
-from bs4 import BeautifulSoup
+import bs4
+from fake_useragent import UserAgent
+
+MOVIES_URL = 'https://www.coolgenerator.com/random-movie-generator'
+
+def get_imdb_link(movie_title: str) -> str:
+    """_summary_
+        Get the IMDB url of the movie title
+    Args:
+        movie_title (str): Movie title
+
+    Returns:
+        str: Imdb Url of the movie
+    """
+    url = f'https://www.imdb.com/find?q={movie_title.replace(" ", "+")}'
+    ua = UserAgent()
+    try:
+        for _ in range(2):
+            response = requests.get(url, headers={"User-Agent": ua.firefox})
+            if response.ok:
+                break
+        soup = bs4.BeautifulSoup(response.content, 'html.parser')
+        imdblink = soup.find('a', {'class': 'ipc-metadata-list-summary-item__t'})
+        url_imdb = 'https://www.imdb.com' + imdblink.attrs['href']
+            
+    except Exception:
+        return ''
+    
+    return url_imdb
+
+def get_movie_images(movies: bs4.element.Tag) -> list:
+    """_summary_
+
+    Args:
+        movies (bs4.element.Tag): BS4 element
+
+    Returns:
+        list: List of the movies images
+    """
+    images = []
+    for imgs in movies.select('img'):
+        src = 'https:' + imgs.get('src')
+        images.append(src)
+    return images
+
+def get_movies(num_movies: int) -> None:
+    """_summary_
+
+    Args:
+        num_movies (int): Number of movies
+    """
+    count = 0
+    while True:
+        response = requests.get(MOVIES_URL, headers={"UserAgent": UserAgent().chrome})
+        soup = bs4.BeautifulSoup(response.content, 'html.parser')
+
+        movies_ul = soup.find('ul', {'class': 'list-unstyled content-list'})
+        images = get_movie_images(movies_ul)
+
+        for idx, movie in enumerate(movies_ul.contents):
+            if movie.name != 'li':
+                break
+            if count >= num_movies:
+                return
+            title = (movie.contents[2].text).replace('(', ' (')
+            genre = (movie.contents[3].contents[1].text).replace(',', ', ')
+            rate = (movie.contents[3].contents[3].text)
+            imdb = get_imdb_link(title)
+                
+            print(f'TITLE: {title}')
+            print(f'GENRE: {genre}')
+            print(f'RATING: {float(rate):.1f}')
+            print(f'IMDb: {imdb}')
+            print(f'IMAGE URL: {images[idx]}\n')
+            count += 1
+    
 
 if __name__ == "__main__":
 
-    print('\n🎥 Picking Random movie...')
-    url = 'https://www.coolgenerator.com/random-movie-generator'
-    page = requests.get(url)
-
-    images = []
-    steps = 0
-    count = 0
-    title = ''
-    genre = ''
-    imdb = ''
-
-    soup = BeautifulSoup(page.content, 'html.parser')
-
-    local = soup.find('ul', {'class': 'list-unstyled content-list'})
-
-    for imgs in local.select('img'):
-        src = 'https:' + imgs.get('src')
-        images.append(src)
-
-    for i in local.select('span'):
-        if steps != 3:
-            if steps == 0:
-                title = i.text.replace("(", " (")
-            if steps == 1:
-                genre = i.text
-            if steps == 2:
-                imdb = i.text
-
-        else:
-            url = f'https://www.imdb.com/find?q={title.replace(" ", "+")}'
-            web = requests.get(url)
-            soup = BeautifulSoup(web.content, 'html.parser')
-
-            imdblink = soup.find('a', {'class': 'ipc-metadata-list-summary-item__t'})
-            url = 'https://www.imdb.com' + imdblink.attrs['href']
-            web = requests.get(url)
-            soup = BeautifulSoup(web.content, 'html.parser')
-            imdbcheck = soup.find(
-                'span', {
-                    'class':
-                    'sc-7ab21ed2-1 jGRxWM'
-                })
-            imdb = imdbcheck.text if imdbcheck else imdb
-            
-            print(f'Title: {title}')
-            print(f'Genre: {genre}')
-            print(f'IMDb: {imdb}')
-            print(f'Image: {images[count]}\n')
-
-            count = count + 1
-            steps = 0
-
-            if steps == 0:
-                title = i.text.replace("(", " (")
-
-        steps = steps + 1
-    print()
+    num_movies = int(input('Enter a number of movies: ').strip())
+    print('\n🎥 Picking Random movies ...\n')
+    get_movies(num_movies)
+    
