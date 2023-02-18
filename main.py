@@ -83,5 +83,5 @@ def get_movies(num_movies: int) -> None:
 if __name__ == "__main__":
 
     num_movies = int(input("Enter a number of movies: ").strip())
-    print("\n🎥 Picking Random movies ...\n")
+    print("\n🎥 Picking movies ...\n")
     get_movies(num_movies)
