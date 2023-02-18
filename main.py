@@ -6,7 +6,7 @@ MOVIES_URL = "https://www.coolgenerator.com/random-movie-generator"
 
 
 def get_imdb_link(movie_title: str) -> str:
-    """_summary_
+    """
         Return the IMDB url of the movie title
     Args:
         movie_title (str): Movie title
@@ -31,7 +31,7 @@ def get_imdb_link(movie_title: str) -> str:
 
 
 def get_movie_images(movies: bs4.element.Tag) -> list:
-    """_summary_
+    """
         Return a list of movies image
 
     Args:
@@ -48,7 +48,7 @@ def get_movie_images(movies: bs4.element.Tag) -> list:
 
 
 def get_movies(num_movies: int) -> None:
-    """_summary_
+    """
         Print the list of movies
 
     Args:
